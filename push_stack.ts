@@ -1,5 +1,6 @@
 import { cecho, consoleKv, KEY, readKv } from "./shared.ts";
 import { parseArgs } from "jsr:@std/cli/parse-args";
+import * as path from "jsr:@std/path";
 
 const { pwd: _currentPwd, _ } = parseArgs(Deno.args, {
   string: ["pwd"],
