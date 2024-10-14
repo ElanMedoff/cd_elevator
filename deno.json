@@ -5,7 +5,7 @@
     "init_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv init_stack.ts",
     "push_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv push_stack.ts",
     "cleanup": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv cleanup.ts",
-    "args": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv args.ts"
+    "validate_args": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv validate_args.ts"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.6",

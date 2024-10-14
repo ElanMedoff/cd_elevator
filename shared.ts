@@ -32,3 +32,31 @@ export function cecho(
     }
   }
 }
+
+export async function consoleKv() {
+  const { currIndex, stack } = await readKv();
+  cecho(
+    "doing",
+    `reading from the kv store, value is: ${
+      JSON.stringify(
+        {
+          currIndex,
+          stack,
+        },
+        null,
+        2,
+      )
+    }`,
+  );
+}
+
+export async function readKv() {
+  const kv = await Deno.openKv();
+  const { value } = await kv.get(KEY);
+  const { currIndex, stack } = value as {
+    currIndex: number;
+    stack: string[];
+  };
+  // TODO: validate with something like zod
+  return { currIndex, stack: [...stack] };
+}
