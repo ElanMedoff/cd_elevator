@@ -1,5 +1,3 @@
-echo 'running tester.sh ...'
-
 current_pwd=$(pwd)
 
 if ! deno task validate_args "$@"; then 
@@ -20,8 +18,22 @@ fi
 
 case "$1" in 
   --forwards)
+    forwards_out=$(deno task forwards)
+    echo "forwards_out: $forwards_out"
+    if [[ "$forwards_out" == 1 ]]; then
+      return
+    else
+      cd "$forwards_out"
+    fi
     ;;
   --backwards)
+    backwards_out=$(deno task backwards)
+    echo "backwards_out: $backwards_out"
+    if [[ "$backwards_out" == 1 ]]; then
+      return
+    else
+      cd "$backwards_out"
+    fi
     ;;
   --changeDir)
     if cd "$2"; then 
@@ -30,6 +42,4 @@ case "$1" in
     ;;
 esac
 
-
-# deno task cleanup
-echo 'after running'
+deno task cleanup

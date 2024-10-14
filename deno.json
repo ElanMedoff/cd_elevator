@@ -4,6 +4,8 @@
     "init_kv": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv init_kv.ts",
     "init_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv init_stack.ts",
     "push_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv push_stack.ts",
+    "backwards": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv backwards.ts",
+    "forwards": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv forwards.ts",
     "cleanup": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv cleanup.ts",
     "validate_args": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv validate_args.ts"
   },

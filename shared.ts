@@ -1,12 +1,10 @@
 import "npm:zx/globals";
 import { chalk } from "npm:zx";
 
-// export function trimNewline(str: string) {
-//   if (!str.endsWith("\n")) return str;
-//   return str.slice(0, str.indexOf("\n"));
-// }
-
+// TODO: use a symbol?
 export const KEY = ["cd_stack_key"];
+
+// TODO: use chalk
 
 export function cecho(
   mode: "error" | "query" | "noop" | "doing",

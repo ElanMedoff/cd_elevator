@@ -1,4 +1,3 @@
-import "npm:zx/globals";
 import { cecho, consoleKv, KEY, readKv } from "./shared.ts";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 

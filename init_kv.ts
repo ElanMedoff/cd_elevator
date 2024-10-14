@@ -1,4 +1,3 @@
-import "npm:zx/globals";
 import { cecho, KEY } from "./shared.ts";
 
 cecho("doing", "running init_kv ...");
