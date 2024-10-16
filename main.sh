@@ -1,14 +1,24 @@
+total_start=`date +%s.%N`
+
 deno_working_dir="$HOME/Desktop/cd_stack"
 debug_flag="$2"
+
+# eg: get_runtime start end label
+# $1: start
+# $2: end
+get_runtime() {
+  echo "$3 runtime: $( echo "$2 - $1" | bc -l )"
+}
 
 # eg: init_kv --debug
 # $1: --debug
 init_kv() {
+  init_kv_start=`date +%s.%N`
   if [[ "$1" == "--debug" ]]
   then
-    deno task --cwd="$deno_working_dir" init_kv
+    deno task --cwd="$deno_working_dir" init_kv &
   else
-    deno task --cwd="$deno_working_dir" init_kv > /dev/null 2>&1
+    (&>/dev/null deno task --cwd="$deno_working_dir" init_kv &)
   fi
   init_kv_code="$?"
   if [[ "$init_kv_code" != 0 ]]
@@ -16,17 +26,20 @@ init_kv() {
     echo 'ERROR: error running `deno task init_kv`, exiting early'
     return
   fi
+  init_kv_end=`date +%s.%N`
+  # get_runtime "$init_kv_start" "$init_kv_end" "init_kv"
 }
 
 # eg: init_stack path/to/dir --debug
 # $1: pwd before navigating
 # $2: --debug
 init_stack() {
+  init_stack_start=`date +%s.%N`
   if [[ "$2" == "--debug" ]]
   then
-    deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1"
+    deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" &
   else 
-    deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" > /dev/null 2>&1
+    (&>/dev/null deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" &)
   fi
   init_stack_code="$?"
   if [[ "$init_stack_code" != 0 ]]
@@ -34,6 +47,8 @@ init_stack() {
     echo 'ERROR: error running `deno task init_stack`, exiting early'
     return
   fi
+  init_stack_end=`date +%s.%N`
+  get_runtime "$init_stack_start" "$init_stack_end" "init_stack"
 }
 
 case "$1" in 
@@ -41,8 +56,11 @@ case "$1" in
     init_kv "$debug_flag"
     init_stack "$(pwd)" "$debug_flag"
 
+    forwards_start=`date +%s.%N`
     # run deno command directly to avoid the output from `deno task` i.e. Task init_kv ...
     forwards_out=$(deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$deno_working_dir/scripts/forwards.ts")
+    forwards_end=`date +%s.%N`
+    get_runtime "$forwards_start" "$forwards_end" "forwards"
     if [[ "$2" == "--debug" ]]; then echo "forwards_out: $forwards_out"; fi
     if [[ "$forwards_out" == "__err" ]]
     then
@@ -58,17 +76,19 @@ case "$1" in
     if cd ".."
       init_kv "$debug_flag"
       init_stack "$before_nav_pwd" "$debug_flag"
+      backwards_start=`date +%s.%N`
       if [[ "$debug_flag" == "--debug" ]]
       then
-        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)"
+        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" &
       else 
-        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" > /dev/null 2>&1
+        (&>/dev/null deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" &)
       fi
+      backwards_end=`date +%s.%N`
+      get_runtime "$backwards_start" "$backwards_end" "backwards"
     then
     fi
     ;;
   *)
-
     before_nav_pwd=$(pwd)
     if cd "$1"
     then 
@@ -76,12 +96,18 @@ case "$1" in
       init_stack "$before_nav_pwd" "$debug_flag"
 
       after_nav_pwd=$(pwd)
+      push_stack_start=`date +%s.%N`
       if [[ "$2" == "--debug" ]]
       then
-        deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1"
+        deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1" &
       else 
-        deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1" > /dev/null 2>&1
+        (&>/dev/null deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1" &)
       fi
+      push_stack_end=`date +%s.%N`
+      get_runtime "$push_stack_start" "$push_stack_end" "push_stack"
     fi
     ;;
 esac
+
+total_end=`date +%s.%N`
+get_runtime "$total_start" "$total_end" "Total"
