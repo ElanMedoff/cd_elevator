@@ -3,6 +3,11 @@ import { KEY, readKv } from "./shared.ts";
 const { currIndex, stack } = await readKv();
 const kv = await Deno.openKv();
 
+if (stack.length === 0) {
+  console.log("__err");
+  Deno.exit();
+}
+
 if (currIndex === stack.length - 1) {
   console.log("__err");
   Deno.exit();

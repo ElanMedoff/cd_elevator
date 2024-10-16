@@ -1,31 +1,30 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { KEY, readKv } from "./shared.ts";
-import * as path from "jsr:@std/path";
+import { cecho, KEY, readKv } from "./shared.ts";
 
-const { pwd: _currentPwd } = parseArgs(Deno.args, {
-  string: ["pwd"],
+const { after_nav_pwd } = parseArgs(Deno.args, {
+  string: ["after_nav_pwd"],
 });
-const currentPwd = _currentPwd as string;
-
-let cdDir: string;
+const afterNavPwd = after_nav_pwd as string;
 
 const { currIndex, stack } = await readKv();
 const kv = await Deno.openKv();
 
 if (currIndex === 0) {
-  cdDir = path.normalize(path.join(currentPwd, ".."));
+  cecho(
+    "doing",
+    "currIndex is 0, moving afterNavPwd to the front of the stack",
+  );
   await kv.set(KEY, {
     currIndex,
-    stack: [cdDir, ...stack],
+    stack: [afterNavPwd, ...stack],
   });
 } else {
-  cdDir = stack[currIndex - 1];
-
+  cecho(
+    "doing",
+    "currIndex is not 0, moving moving the currIndex",
+  );
   await kv.set(KEY, {
     currIndex: currIndex - 1,
     stack,
   });
 }
-
-// NOTE: only console once, output is parsed by main.sh
-console.log(cdDir);

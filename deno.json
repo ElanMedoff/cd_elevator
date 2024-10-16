@@ -4,6 +4,7 @@
     "init_kv": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/init_kv.ts",
     "init_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/init_stack.ts",
     "push_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/push_stack.ts",
+    "backwards": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/backwards.ts",
     "cleanup": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/cleanup.ts"
   },
   "imports": {

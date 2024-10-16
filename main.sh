@@ -1,6 +1,7 @@
 deno_working_dir="$HOME/Desktop/cd_stack"
 debug_flag="$2"
 
+# eg: init_kv --debug
 # $1: --debug
 init_kv() {
   if [[ "$1" == "--debug" ]]
@@ -17,7 +18,7 @@ init_kv() {
   fi
 }
 
-# eg: init_kv path/to/dir --debug
+# eg: init_stack path/to/dir --debug
 # $1: pwd before navigating
 # $2: --debug
 init_stack() {
@@ -40,6 +41,7 @@ case "$1" in
     init_kv "$debug_flag"
     init_stack "$(pwd)" "$debug_flag"
 
+    # run deno command directly to avoid the output from `deno task` i.e. Task init_kv ...
     forwards_out=$(deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$deno_working_dir/scripts/forwards.ts")
     if [[ "$2" == "--debug" ]]; then echo "forwards_out: $forwards_out"; fi
     if [[ "$forwards_out" == "__err" ]]
@@ -51,19 +53,25 @@ case "$1" in
     fi
     ;;
   --backwards)
-    init_kv "$debug_flag"
-    init_stack "$(pwd)" "$debug_flag"
+    before_nav_pwd=$(pwd)
 
-    backwards_out=$(deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$deno_working_dir/scripts/backwards.ts" --pwd="$(pwd)")
-    if [[ "$2" == "--debug" ]]; then echo "backwards_out: $backwards_out"; fi
-    cd "$backwards_out"
+    if cd ".."
+      init_kv "$debug_flag"
+      init_stack "$before_nav_pwd" "$debug_flag"
+      if [[ "$debug_flag" == "--debug" ]]
+      then
+        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)"
+      else 
+        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" > /dev/null 2>&1
+      fi
+    then
+    fi
     ;;
   *)
 
     before_nav_pwd=$(pwd)
     if cd "$1"
     then 
-      # TODO: This needs the before cd dir
       init_kv "$debug_flag"
       init_stack "$before_nav_pwd" "$debug_flag"
 
@@ -77,5 +85,3 @@ case "$1" in
     fi
     ;;
 esac
-
-# deno task --cwd=$HOME/Desktop/cd_stack cleanup
