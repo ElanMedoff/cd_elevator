@@ -13,7 +13,6 @@ get_runtime() {
 # eg: init_kv --debug
 # $1: --debug
 init_kv() {
-  init_kv_start=`date +%s.%N`
   if [[ "$1" == "--debug" ]]
   then
     deno task --cwd="$deno_working_dir" init_kv
@@ -21,14 +20,6 @@ init_kv() {
     # https://stackoverflow.com/a/51061398
     (&>/dev/null deno task --cwd="$deno_working_dir" init_kv &)
   fi
-  init_kv_code="$?"
-  if [[ "$init_kv_code" != 0 ]]
-  then
-    echo 'ERROR: error running `deno task init_kv`, exiting early'
-    return
-  fi
-  init_kv_end=`date +%s.%N`
-  # get_runtime "$init_kv_start" "$init_kv_end" "init_kv"
 }
 
 # eg: init_stack path/to/dir --debug
@@ -40,12 +31,6 @@ init_stack() {
     deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1"
   else 
     (&>/dev/null deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" &)
-  fi
-  init_stack_code="$?"
-  if [[ "$init_stack_code" != 0 ]]
-  then
-    echo 'ERROR: error running `deno task init_stack`, exiting early'
-    return
   fi
 }
 
