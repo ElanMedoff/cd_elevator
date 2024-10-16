@@ -4,7 +4,8 @@ const { currIndex, stack } = await readKv();
 const kv = await Deno.openKv();
 
 if (currIndex === stack.length - 1) {
-  Deno.exit(1);
+  console.log("__err");
+  Deno.exit();
 }
 
 const cdDir = stack[currIndex + 1];

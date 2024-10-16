@@ -8,7 +8,6 @@ const { pwd: _currentPwd, _ } = parseArgs(Deno.args, {
 const currentPwd = _currentPwd as string;
 const cdDir = path.join(currentPwd, _[0] as string);
 
-await consoleKv();
 const { currIndex, stack } = await readKv();
 const kv = await Deno.openKv();
 

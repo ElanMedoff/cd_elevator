@@ -7,15 +7,15 @@ const { pwd: _currentPwd } = parseArgs(Deno.args, {
 const currentPwd = _currentPwd as string;
 
 const kv = await Deno.openKv();
-await consoleKv();
 const { currIndex, stack } = await readKv();
 
 if (stack.length === 0) {
   cecho("doing", `stack is length 0, pushing pwd: ${currentPwd}`);
   await kv.set(KEY, {
-    currIndex,
+    currIndex: 0,
     stack: [currentPwd],
   });
+  await consoleKv();
   Deno.exit(0);
 } else {
   cecho("noop", `stack is populated: ${JSON.stringify(stack, null, 2)}`);
@@ -27,8 +27,7 @@ if (stack[currIndex] !== currentPwd) {
     currIndex: 0,
     stack: [],
   });
+  await consoleKv();
 } else {
   cecho("noop", "stack[currIndex] is the current dir");
 }
-
-await consoleKv();

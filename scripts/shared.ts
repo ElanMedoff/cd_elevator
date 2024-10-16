@@ -1,10 +1,6 @@
-import "npm:zx/globals";
-import { chalk } from "npm:zx";
+import chalk from "chalk";
 
-// TODO: use a symbol?
-export const KEY = ["cd_stack_key"];
-
-// TODO: use chalk
+export const KEY = ["__cd_stack_key"];
 
 export function cecho(
   mode: "error" | "query" | "noop" | "doing",
@@ -55,6 +51,5 @@ export async function readKv() {
     currIndex: number;
     stack: string[];
   };
-  // TODO: validate with something like zod
   return { currIndex, stack: [...stack] };
 }

@@ -1,7 +1,5 @@
 import { cecho, KEY } from "./shared.ts";
 
-cecho("doing", "running init_kv ...");
-
 const kv = await Deno.openKv();
 const initCheck = await kv.get(KEY);
 if (initCheck.value === null) {
@@ -11,8 +9,5 @@ if (initCheck.value === null) {
     stack: [],
   });
 } else {
-  cecho(
-    "noop",
-    `kv store is populated: ${JSON.stringify(initCheck.value, null, 2)}`,
-  );
+  cecho("noop", "kv store is populated");
 }
