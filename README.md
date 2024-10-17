@@ -1,7 +1,5 @@
 # cd_time_machine
 
-### 🚨 work in progress! 🚨
-
 A bash script track directories you've visited. move back and forth along the list, easily navigating each stop in your
 history ... like a time machine.
 
@@ -40,15 +38,16 @@ position Deno scripts _after_ any navigation, and I try to send scripts to the b
 ### Q: Is there a way to avoid typing the entire script path?
 
 ```bash
-unalias cd
 cd() {
-    source path/to/cd_elevator/main.sh "$@"
+    source ~/Desktop/cd_stack/main.sh "$@"
 }
 cd_backwards() {
-    source path/to/cd_elevator/main.sh --backwards
+    source ~/Desktop/cd_stack/main.sh --backwards
+    zle accept-line
 }
 cd_forwards() {
-    source path/to/cd_elevator/main.sh --forwards
+    source ~/Desktop/cd_stack/main.sh --forwards
+    zle accept-line
 }
 
 zle -N cd_backwards
