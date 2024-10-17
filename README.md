@@ -35,7 +35,7 @@ key-value database in the Deno runtime - it's really elegant to use, try it out!
 A: Ish. About `0.06s` for a directory change or backwards navigation, `0.1s` for a forwards navigation. When possible, I
 position Deno scripts _after_ any navigation, and I try to send scripts to the background. Speed is a WIP.
 
-### Q: How can I use this efficiently in my shell?
+### Q: Is there a way to avoid typing the entire script path?
 
 ```bash
 unalias cd
