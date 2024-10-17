@@ -1,5 +1,7 @@
 # cd_time_machine
 
+🚨 work in progress! 🚨
+
 A bash script track directories you've visited. move back and forth along the list, easily navigating each stop in your
 history ... like a time machine.
 
