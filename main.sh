@@ -17,8 +17,7 @@ init_kv() {
   then
     deno task --cwd="$deno_working_dir" init_kv
   else
-    # https://stackoverflow.com/a/51061398
-    deno task --cwd="$deno_working_dir" init_kv > /dev/null 2>&1 &
+    deno task --cwd="$deno_working_dir" init_kv > /dev/null 2>&1
   fi
   init_kv_pid="$!"
 }
@@ -31,7 +30,7 @@ init_stack() {
   then
     deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1"
   else 
-    deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" > /dev/null 2>&1 &
+    deno task --cwd="$deno_working_dir" init_stack --before_nav_pwd="$1" > /dev/null 2>&1
   fi
   init_stack_pid="$!"
 }
@@ -39,9 +38,7 @@ init_stack() {
 case "$1" in 
   --forwards)
     init_kv "$debug_flag"
-    wait "$init_kv_pid"
     init_stack "$(pwd)" "$debug_flag"
-    wait "$init_stack_pid"
 
     # run deno command directly to avoid the output from `deno task` i.e. Task init_kv ...
     forwards_out=$(deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$deno_working_dir/scripts/forwards.ts")
@@ -59,14 +56,13 @@ case "$1" in
 
     if cd ".."
       init_kv "$debug_flag"
-      wait "$init_kv_pid"
       init_stack "$before_nav_pwd" "$debug_flag"
-      wait "$init_stack_pid"
+
       if [[ "$debug_flag" == "--debug" ]]
       then
         deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)"
       else 
-        deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" > /dev/null 2>&1 &
+        (deno task --cwd="$deno_working_dir" backwards --after_nav_pwd="$(pwd)" > /dev/null 2>&1 &)
       fi
     then
     fi
@@ -76,24 +72,22 @@ case "$1" in
     if cd "$1"
     then 
       init_kv "$debug_flag"
-      wait "$init_kv_pid"
       init_stack "$before_nav_pwd" "$debug_flag"
-      wait "$init_stack_pid"
 
       after_nav_pwd=$(pwd)
       if [[ "$debug_flag" == "--debug" ]]
       then
         deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1"
       else 
-        deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1" > /dev/null 2>&1 &
+        (deno task --cwd="$deno_working_dir" push_stack --after_nav_pwd="$after_nav_pwd" "$1" > /dev/null 2>&1 &)
       fi
     fi
     ;;
 esac
 
 total_end=`date +%s.%N`
-if [[ "$debug_flag" == "--debug" ]]
-then 
+# if [[ "$debug_flag" == "--debug" ]]
+# then 
   get_runtime "$total_start" "$total_end" "Total"
-fi
+# fi
 
