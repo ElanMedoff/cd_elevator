@@ -5,20 +5,14 @@ navigating each stop in your history ... like an elevator.
 
 ---
 
-`$ pwd # /one`
-
-`$ source path/to/cd_elevator/main.sh two`
-
-`$ pwd # /one/two`
-
-`$ source path/to/cd_elevator/main.sh three`
-
-`$ pwd # /one/two/three`
-
-`$ source path/to/cd_elevator/main.sh --backwards`
-
-`$ pwd # /one/two`
-
-`$ source path/to/cd_elevator/main.sh --forwards`
-
-`$ pwd # /one/two/three`
+```bash
+$ pwd # /one
+$ source path/to/cd_elevator/main.sh two
+$ pwd # /one/two`
+$ source path/to/cd_elevator/main.sh three
+$ pwd # /one/two/three`
+$ source path/to/cd_elevator/main.sh --backwards
+$ pwd # /one/two
+$ source path/to/cd_elevator/main.sh --forwards
+$ pwd # /one/two/three
+```
