@@ -86,8 +86,8 @@ case "$1" in
 esac
 
 total_end=`date +%s.%N`
-# if [[ "$debug_flag" == "--debug" ]]
-# then 
+if [[ "$debug_flag" == "--debug" ]]
+then 
   get_runtime "$total_start" "$total_end" "Total"
-# fi
+fi
 
