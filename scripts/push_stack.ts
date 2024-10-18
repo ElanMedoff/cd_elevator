@@ -1,18 +1,24 @@
-import { cecho, consoleKv, KEY, readKv } from "./shared.ts";
+import { init, KEY, log, logKv, readKv } from "./shared.ts";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 
-const { after_nav_pwd } = parseArgs(Deno.args, {
-  string: ["after_nav_pwd"],
-});
+const { after_nav_pwd, before_nav_pwd, debug: debugFlag } = parseArgs(
+  Deno.args,
+  {
+    string: ["after_nav_pwd"],
+    boolean: ["debug"],
+  },
+);
 const afterNavPwd = after_nav_pwd as string;
+const beforeNavPwd = before_nav_pwd as string;
 
-const { currIndex, stack } = await readKv();
-const kv = await Deno.openKv();
+const kv = await init({ beforeNavPwd, debugFlag });
+const { currIndex, stack } = await readKv(kv);
 
-cecho("doing", "updating stack...");
+log(debugFlag, "BEGIN: running push_stack script...");
+await logKv({ kv, debugFlag });
 await kv.set(KEY, {
   currIndex: currIndex + 1,
   stack: [...stack, afterNavPwd],
 });
-await consoleKv();
-cecho("noop", "updated stack");
+log(debugFlag, "END: ran push_stack script\n");
+await logKv({ kv, debugFlag });

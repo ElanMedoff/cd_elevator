@@ -1,11 +1,9 @@
 {
   "tasks": {
-    "main": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/main.ts",
-    "init_kv": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/init_kv.ts",
-    "init_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/init_stack.ts",
-    "push_stack": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/push_stack.ts",
-    "backwards": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/backwards.ts",
-    "cleanup": "deno run --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/cleanup.ts"
+    "push_stack": "deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/push_stack.ts",
+    "backwards": "deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/backwards.ts",
+    "cleanup": "deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/cleanup.ts",
+    "clear_kv": "deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv scripts/clear_kv.ts"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.6",
