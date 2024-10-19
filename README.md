@@ -9,13 +9,13 @@ like you have a time machine.
 
 ```bash
 $ pwd # /one
-$ source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --change_dir=two
+$ source path/to/cd_time_machine/main.sh --change_dir=two
 $ pwd # /one/two`
-$ source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --change_dir=three
+$ source path/to/cd_time_machine/main.sh --change_dir=three
 $ pwd # /one/two/three`
-$ source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --backwards
+$ source path/to/cd_time_machine/main.sh --backwards
 $ pwd # /one/two
-$ source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --forwards
+$ source path/to/cd_time_machine/main.sh --forwards
 $ pwd # /one/two/three
 ```
 
@@ -40,18 +40,18 @@ script. The exception is a forwards navigation, since that requires reading from
 
 ```bash
 tm() {
-    source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --change_dir="$1"
+    source path/to/cd_time_machine/main.sh --change_dir="$1"
 }
 tmb() {
-    source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --backwards
+    source path/to/cd_time_machine/main.sh --backwards
 }
 tmf() {
-    source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --forwards
+    source path/to/cd_time_machine/main.sh --forwards
 }
 
 # or
 
 # based on moving around the vim jumplist
-bindkey -s '^O' 'source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --backwards \n'
-bindkey -s '^I' 'source path/to/cd_time_machine/main.sh --script_dir=path/to/cd_time_machine --forwards \n'
+bindkey -s '^O' 'source path/to/cd_time_machine/main.sh --backwards \n'
+bindkey -s '^I' 'source path/to/cd_time_machine/main.sh --forwards \n'
 ```
