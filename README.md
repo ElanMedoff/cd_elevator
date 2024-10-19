@@ -1,7 +1,5 @@
 # cd_time_machine
 
-### work in progress
-
 A bash script to move back and forth along the directories you've visited. easily navigate each step in your history ...
 like you have a time machine.
 
@@ -10,9 +8,9 @@ like you have a time machine.
 ```bash
 $ pwd # /one
 $ source path/to/cd_time_machine/main.sh --change_dir=two
-$ pwd # /one/two`
+$ pwd # /one/two
 $ source path/to/cd_time_machine/main.sh --change_dir=three
-$ pwd # /one/two/three`
+$ pwd # /one/two/three
 $ source path/to/cd_time_machine/main.sh --backwards
 $ pwd # /one/two
 $ source path/to/cd_time_machine/main.sh --forwards
