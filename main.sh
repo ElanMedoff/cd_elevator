@@ -4,9 +4,6 @@
 
 total_start=`date +%s.%N`
 
-red='\033[0;31m'
-no_color='\033[0m'
-
 # eg: get_runtime start end label
 # $1: start
 # $2: end
@@ -17,10 +14,12 @@ get_runtime() {
 # eg: err "bad argument!"
 # $1: message
 err() {
+  red='\033[0;31m'
+  no_color='\033[0m'
   echo -e "${red}Unknown option $1${no_color}"
 }
 
-script_dir=""
+script_dir="$(dirname "$0")"
 change_dir=""
 forwards_flag=0
 backwards_flag=0
@@ -46,10 +45,6 @@ do
       debug_flag=1
       shift
       ;;
-    --script_dir=*)
-      script_dir=$(echo "$arg" | cut -d'=' -f2)
-      shift
-      ;;
     --change_dir=*)
       change_dir=$(echo "$arg" | cut -d'=' -f2)
       shift
@@ -62,12 +57,6 @@ do
       ;;
   esac
 done
-
-if [[ "$script_dir" == "" ]] 
-then 
-  err "--script_dir is required!"
-  return
-fi
 
 if [[ "$change_dir" == "" ]]
 then 
@@ -104,7 +93,7 @@ then
   fi
   if [[ "$forwards_out" == "__err" ]]
   then
-    echo -e "${red}Can't move forwards!${no_color}"
+    err "Can't move forwards!"
     return
   else
     cd "$forwards_out"
