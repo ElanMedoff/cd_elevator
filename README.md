@@ -49,9 +49,20 @@ tmf() {
     source path/to/cd_time_machine/main.sh --forwards
 }
 
-# or
+# or register the functions so they can be remapped to control keys
+
+tmb() {
+    source path/to/cd_time_machine/main.sh --backwards
+    zle accept-line
+}
+tmf() {
+    source path/to/cd_time_machine/main.sh --forwards
+    zle accept-line
+}
+zle -N tmb
+zle -N tmf
 
 # based on moving around the vim jumplist
-bindkey -s '^O' 'source path/to/cd_time_machine/main.sh --backwards \n'
-bindkey -s '^I' 'source path/to/cd_time_machine/main.sh --forwards \n'
+bindkey '^O' tmb
+bindkey '^I' tmf
 ```

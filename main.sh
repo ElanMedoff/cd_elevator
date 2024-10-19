@@ -1,7 +1,5 @@
 # TODO
 # bootstrap script
-# zle
-# include current shell in key
 
 total_start=`date +%s.%N`
 
@@ -12,12 +10,12 @@ get_runtime() {
   echo "$3 runtime: $( echo "$2 - $1" | bc -l )"
 }
 
+red='\033[0;31m'
+no_color='\033[0m'
 # eg: err "bad argument!"
 # $1: message
 err() {
-  red='\033[0;31m'
-  no_color='\033[0m'
-  echo -e "${red}$1${no_color}"
+  echo -en "${red}$1${no_color}" "$2"
 }
 
 script_dir="$(dirname "$0")"
