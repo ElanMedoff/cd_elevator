@@ -1,39 +1,44 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { getKey, init, log, logKv, readKv } from "./shared.ts";
+import { buildLog, getKey, init, logKv, readKv } from "./shared.ts";
 
-const { before_nav_pwd, debug: debugFlag, pid: _pid } = parseArgs(Deno.args, {
-  string: ["before_nav_pwd", "pid"],
-  boolean: ["debug"],
-});
+const { before_nav_pwd, debug: debugFlag, pid: _pid, script_dir } = parseArgs(
+  Deno.args,
+  {
+    string: ["before_nav_pwd", "pid", "script_dir"],
+    boolean: ["debug"],
+  },
+);
 const beforeNavPwd = before_nav_pwd as string;
 const pid = _pid as string;
+const scriptDir = script_dir as string;
 
-const kv = await init({ beforeNavPwd, debugFlag, pid });
+const log = buildLog({ debugFlag, scriptDir });
+const kv = await init({ beforeNavPwd, debugFlag, pid, log });
 
 const { currIndex, stack } = await readKv({ kv, pid });
 
-log(debugFlag, "BEGIN: running forwards script...");
-await logKv({ debugFlag, kv, pid });
+log("BEGIN: running forwards script...");
+await logKv({ debugFlag, kv, pid, log });
 if (stack.length === 0) {
-  log(debugFlag, "stack length is 0, returning __err");
+  log("stack length is 0, returning __err");
   console.log("__err");
   Deno.exit();
 }
 
 if (currIndex === stack.length - 1) {
-  log(debugFlag, "at the end of the stack, returning __err");
+  log("at the end of the stack, returning __err");
   console.log("__err");
   Deno.exit();
 }
 
-log(debugFlag, "incrementing currIndex");
+log("incrementing currIndex");
 const cdDir = stack[currIndex + 1];
 await kv.set(getKey(pid), {
   currIndex: currIndex + 1,
   stack,
 });
-log(debugFlag, "END: ran forwards script\n");
+log("END: ran forwards script\n");
 
-await logKv({ debugFlag, kv, pid });
+await logKv({ debugFlag, kv, pid, log });
 // NOTE: only console once, output is parsed by main.sh
 console.log(cdDir);

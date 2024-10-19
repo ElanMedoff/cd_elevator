@@ -1,27 +1,32 @@
 export const getKey = (pid: string) => ["__cd_stack_key", pid];
 
-export function log(
-  debugFlag: boolean,
-  str: string,
+export function buildLog(
+  { debugFlag, scriptDir }: { debugFlag: boolean; scriptDir: string },
 ) {
-  if (!debugFlag) return;
+  if (!debugFlag) return (_str: string) => {};
 
-  const currContent = Deno.readTextFileSync(
-    "/home/elan/Desktop/cd_time_machine/log.txt",
-  );
-  Deno.writeTextFileSync(
-    "/home/elan/Desktop/cd_time_machine/log.txt",
-    `${currContent ?? "BEGIN"}\n${str}`,
-  );
+  return (str: string) => {
+    const currContent = Deno.readTextFileSync(
+      `${scriptDir}/log.txt`,
+    );
+    Deno.writeTextFileSync(
+      `${scriptDir}/log.txt`,
+      `${currContent ?? "BEGIN"}\n${str}`,
+    );
+  };
 }
 
 export async function logKv(
-  { kv, debugFlag, pid }: { kv: Deno.Kv; debugFlag: boolean; pid: string },
+  { kv, debugFlag, pid, log }: {
+    kv: Deno.Kv;
+    debugFlag: boolean;
+    pid: string;
+    log: (str: string) => void;
+  },
 ) {
   if (!debugFlag) return;
   const { currIndex, stack } = await readKv({ kv, pid });
   log(
-    debugFlag,
     `reading from the kv store, value is: ${
       JSON.stringify(
         {
@@ -45,34 +50,34 @@ export async function readKv({ kv, pid }: { kv: Deno.Kv; pid: string }) {
 }
 
 export async function init(
-  { beforeNavPwd, debugFlag, pid }: {
+  { beforeNavPwd, debugFlag, pid, log }: {
     beforeNavPwd: string;
     debugFlag: boolean;
     pid: string;
+    log: (str: string) => void;
   },
 ) {
   const kv = await Deno.openKv();
 
   const initCheck = await kv.get(getKey(pid));
-  log(debugFlag, "BEGIN: initializing the kv store...");
+  log("BEGIN: initializing the kv store...");
   if (initCheck.value === null) {
-    log(debugFlag, "kv store is empty, setting initial store");
+    log("kv store is empty, setting initial store");
     await kv.set(getKey(pid), {
       currIndex: 0,
       stack: [],
     });
   } else {
-    log(debugFlag, "kv store is already populated");
+    log("kv store is already populated");
   }
-  log(debugFlag, "DONE: kv store initialized\n");
+  log("DONE: kv store initialized\n");
 
   const { stack: uninitializedStack } = await readKv({ kv, pid });
 
-  log(debugFlag, "BEGIN: initializing the stack...");
-  await logKv({ kv, debugFlag, pid });
+  log("BEGIN: initializing the stack...");
+  await logKv({ kv, debugFlag, pid, log });
   if (uninitializedStack.length === 0) {
     log(
-      debugFlag,
       `stack is length 0, pushing before_nav_pwd: ${beforeNavPwd}`,
     );
     await kv.set(getKey(pid), {
@@ -80,18 +85,17 @@ export async function init(
       stack: [beforeNavPwd],
     });
   } else {
-    log(debugFlag, "stack is already populated");
+    log("stack is already populated");
   }
-  log(debugFlag, "DONE: stack initialized\n");
+  log("DONE: stack initialized\n");
 
   // TODO: ideally only wread from kv once, write to kv once
   const { currIndex, stack: initializedStack } = await readKv({ kv, pid });
 
-  log(debugFlag, "BEGIN: initializing the currIndex...");
-  await logKv({ kv, debugFlag, pid });
+  log("BEGIN: initializing the currIndex...");
+  await logKv({ kv, debugFlag, pid, log });
   if (initializedStack[currIndex] !== beforeNavPwd) {
     log(
-      debugFlag,
       `stack[currIndex] (${
         initializedStack[currIndex]
       }) is not beforeNavPwd (${beforeNavPwd}), resetting the stack`,
@@ -101,9 +105,9 @@ export async function init(
       stack: [beforeNavPwd],
     });
   } else {
-    log(debugFlag, "stack[currIndex] is already the current dir");
+    log("stack[currIndex] is already the current dir");
   }
-  log(debugFlag, "DONE: currIndex initialized\n");
+  log("DONE: currIndex initialized\n");
 
   return kv;
 }
