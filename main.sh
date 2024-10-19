@@ -1,6 +1,5 @@
 # TODO
 # bootstrap script
-# figure out deno_working_dir
 
 total_start=`date +%s.%N`
 
@@ -82,15 +81,11 @@ if [[ "$forwards_flag" == 1 ]]
 then 
 
   before_nav_pwd=$(pwd)
-
   # run deno command directly to avoid the output from `deno task` i.e. Task push_stack ...
-  if [[ "$debug_flag" == 1 ]]
-  then 
-    forwards_out=$(deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$script_dir/scripts/forwards.ts" --before_nav_pwd="$before_nav_pwd" --debug)
-    echo "forwards_out: $forwards_out"; 
-  else
-    forwards_out=$(deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$script_dir/scripts/forwards.ts" --before_nav_pwd="$before_nav_pwd")
-  fi
+  forwards_cmd="deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$script_dir/scripts/forwards.ts" --before_nav_pwd="$before_nav_pwd""
+  [[ "$debug_flag" == 1 ]] && forwards_cmd+=" --debug"
+  forwards_out=$(eval "$forwards_cmd")
+
   if [[ "$forwards_out" == "__err" ]]
   then
     err "Can't move forwards!"
@@ -105,24 +100,21 @@ then
   before_nav_pwd=$(pwd)
   if cd ".."
     after_nav_pwd=$(pwd)
-    if [[ "$debug_flag" == 1 ]]
-    then
-      deno task --cwd="$script_dir" backwards --after_nav_pwd="$after_nav_pwd" --before_nav_pwd="$before_nav_pwd" --debug
-    else 
-      (deno task --cwd="$script_dir" backwards --after_nav_pwd="$after_nav_pwd" --before_nav_pwd="$before_nav_pwd" > /dev/null 2>&1 &)
-    fi
+
+    backwards_cmd="deno task --cwd="$script_dir" backwards --after_nav_pwd="$after_nav_pwd" --before_nav_pwd="$before_nav_pwd""
+    [[ "$debug_flag" == 1 ]] && backwards_cmd+=" --debug"
+    [[ "$debug_flag" == 0 ]] && backwards_cmd="($backwards_cmd > /dev/null 2>&1 &)"
+    eval "$backwards_cmd"
   then
   fi
 
 elif [[ "$clear_flag" == 1 ]]
 then
 
-  if [[ "$debug_flag" == 1 ]]
-  then
-    deno task --cwd="$script_dir" clear_kv --debug
-  else 
-    (deno task --cwd="$script_dir" clear_kv > /dev/null 2>&1 &)
-  fi
+  clear_cmd="deno task --cwd="$script_dir" clear_kv"
+  [[ "$debug_flag" == 1 ]] && clear_cmd+=" --debug"
+  [[ "$debug_flag" == 0 ]] && clear_cmd="($clear_cmd > /dev/null 2>&1 &)"
+  eval "$clear_cmd"
 
 elif [[ "$change_dir_flag" == 1 ]]
 then
@@ -131,12 +123,11 @@ then
   if z "$change_dir"
   then 
     after_nav_pwd=$(pwd)
-    if [[ "$debug_flag" == 1 ]]
-    then
-      deno task --cwd="$script_dir" push_stack --before_nav_pwd="$before_nav_pwd" --after_nav_pwd="$after_nav_pwd" --debug
-    else 
-      (deno task --cwd="$script_dir" push_stack --before_nav_pwd="$before_nav_pwd" --after_nav_pwd="$after_nav_pwd" > /dev/null 2>&1 &)
-    fi
+
+    change_dir_cmd="deno task --cwd="$script_dir" push_stack --before_nav_pwd="$before_nav_pwd" --after_nav_pwd="$after_nav_pwd""
+    [[ "$debug_flag" == 1 ]] && change_dir_cmd+=" --debug"
+    [[ "$debug_flag" == 0 ]] && change_dir_cmd="($change_dir_cmd > /dev/null 2>&1 &)"
+    eval "$change_dir_cmd"
   fi
 
 fi
