@@ -15,7 +15,7 @@ get_runtime() {
 err() {
   red='\033[0;31m'
   no_color='\033[0m'
-  echo -e "${red}Unknown option $1${no_color}"
+  echo -e "${red}$1${no_color}"
 }
 
 script_dir="$(dirname "$0")"
@@ -49,7 +49,7 @@ do
       shift
       ;;
     --*)
-      err "unknown option $arg"
+      err "Unknown option: $arg"
       return
       ;;
     *)
@@ -79,7 +79,6 @@ fi
 
 if [[ "$forwards_flag" == 1 ]]
 then 
-
   before_nav_pwd=$(pwd)
   # run deno command directly to avoid the output from `deno task` i.e. Task push_stack ...
   forwards_cmd="deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$script_dir/scripts/forwards.ts" --before_nav_pwd="$before_nav_pwd""
@@ -93,10 +92,10 @@ then
   else
     cd "$forwards_out"
   fi
+fi
 
-elif [[ "$backwards_flag" == 1 ]]
+if [[ "$backwards_flag" == 1 ]]
 then
-
   before_nav_pwd=$(pwd)
   if cd ".."
     after_nav_pwd=$(pwd)
@@ -107,18 +106,18 @@ then
     eval "$backwards_cmd"
   then
   fi
+fi
 
-elif [[ "$clear_flag" == 1 ]]
+if [[ "$clear_flag" == 1 ]]
 then
-
   clear_cmd="deno task --cwd="$script_dir" clear_kv"
   [[ "$debug_flag" == 1 ]] && clear_cmd+=" --debug"
   [[ "$debug_flag" == 0 ]] && clear_cmd="($clear_cmd > /dev/null 2>&1 &)"
   eval "$clear_cmd"
+fi
 
-elif [[ "$change_dir_flag" == 1 ]]
+if [[ "$change_dir_flag" == 1 ]]
 then
-
   before_nav_pwd=$(pwd)
   if z "$change_dir"
   then 
@@ -129,7 +128,6 @@ then
     [[ "$debug_flag" == 0 ]] && change_dir_cmd="($change_dir_cmd > /dev/null 2>&1 &)"
     eval "$change_dir_cmd"
   fi
-
 fi
 
 total_end=`date +%s.%N`
