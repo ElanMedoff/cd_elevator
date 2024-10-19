@@ -1,5 +1,6 @@
 # TODO
 # bootstrap script
+# differentiate between tab and control o
 
 total_start=`date +%s.%N`
 

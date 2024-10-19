@@ -19,6 +19,11 @@ $ source path/to/cd_time_machine/main.sh --forwards
 $ pwd # /one/two/three
 ```
 
+## Requirements
+
+- [deno](https://docs.deno.com/runtime/#install-deno)
+- [z](https://github.com/agkozak/zsh-z) (in the future I may support using different navigation commands)
+
 ## FAQ
 
 ### Q: Why do you need to execute the script with `source`, why not with `./`?
@@ -28,13 +33,12 @@ _within_ the subshell, and it won't affect the shell where you initially execute
 script within your current shell - and have directory changes take affect in your current shell - the `source` keyword
 is necessary.
 
-### Q: Why Deno?
-
 ### Q: Is `cd_time_machine` fast?
 
-A: very! About `0.005s` for a directory change or backwards navigation, `0.03s` for a forwards navigation. To make
-things fast, I keep calls to Deno _after_ any navigation, and send the job to the background to avoid blocking the main
-script. The exception is a forwards navigation, since that requires reading from the database before navigating.
+A: very! About `0.005s` for a directory change or backwards navigation, `0.03s` for a forwards navigation on my local
+machine. To make things fast, I keep calls to Deno _after_ any navigation, and send the job to the background to avoid
+blocking the main script. The exception is a forwards navigation, since that requires reading from the database before
+navigating.
 
 ### Q: Suggested aliases/functions?
 
