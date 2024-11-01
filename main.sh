@@ -1,6 +1,3 @@
-# TODO
-# restrict cd to current dir
-
 total_start=`date +%s.%N`
 
 # eg: get_runtime start end label
@@ -15,7 +12,7 @@ no_color='\033[0m'
 # eg: err "bad argument!"
 # $1: message
 err() {
-  echo -en "${red}$1${no_color}" "$2"
+  echo -en "${red}$1${no_color}"
 }
 
 script_dir="$(dirname "$0")"
@@ -120,6 +117,13 @@ fi
 if [[ "$change_dir_flag" == 1 ]]
 then
   before_nav_pwd=$(pwd)
+
+  change_dir_parent=$(dirname $(realpath "$change_dir"))
+  if [[ "$change_dir_parent" != "$before_nav_pwd" ]]
+  then
+    err "Only navigations to a direct child are supported"
+    return
+  fi
 
   if builtin cd "$change_dir"
   then 
