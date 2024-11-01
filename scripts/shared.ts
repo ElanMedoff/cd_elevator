@@ -1,3 +1,11 @@
+export interface KvValue {
+  currIndex: number;
+  stack: string[];
+  lastAccess: number;
+}
+
+export type Log = (str: string) => void;
+
 export const getKey = (pid: string) => ["__cd_stack_key", pid];
 
 export function buildLog(
@@ -21,18 +29,15 @@ export async function logKv(
     kv: Deno.Kv;
     debugFlag: boolean;
     pid: string;
-    log: (str: string) => void;
+    log: Log;
   },
 ) {
   if (!debugFlag) return;
-  const { currIndex, stack } = await readKv({ kv, pid });
+  const value = await readKv({ kv, pid });
   log(
     `reading from the kv store, value is: ${
       JSON.stringify(
-        {
-          currIndex,
-          stack,
-        },
+        value,
         null,
         2,
       )
@@ -41,32 +46,36 @@ export async function logKv(
 }
 
 export async function readKv({ kv, pid }: { kv: Deno.Kv; pid: string }) {
-  const { value } = await kv.get(getKey(pid));
-  const { currIndex, stack } = value as {
-    currIndex: number;
-    stack: string[];
-  };
-  return { currIndex, stack: [...stack] };
+  const { currIndex, stack, lastAccess } = (await kv.get(getKey(pid)))
+    .value as KvValue;
+  return { currIndex, stack: [...stack], lastAccess };
 }
 
 export async function init(
-  { beforeNavPwd, debugFlag, pid, log }: {
+  { beforeNavPwd, debugFlag, pid, log, kv }: {
     beforeNavPwd: string;
     debugFlag: boolean;
     pid: string;
-    log: (str: string) => void;
+    log: Log;
+    kv?: Deno.Kv;
   },
 ) {
-  const kv = await Deno.openKv();
+  if (!kv) {
+    kv = await Deno.openKv();
+  }
 
   const initCheck = await kv.get(getKey(pid));
   log("BEGIN: initializing the kv store...");
   if (initCheck.value === null) {
     log("kv store is empty, setting initial store");
-    await kv.set(getKey(pid), {
-      currIndex: 0,
-      stack: [],
-    });
+    await kv.set(
+      getKey(pid),
+      {
+        currIndex: 0,
+        stack: [],
+        lastAccess: Date.now(),
+      } satisfies KvValue,
+    );
   } else {
     log("kv store is already populated");
   }
@@ -80,10 +89,14 @@ export async function init(
     log(
       `stack is length 0, pushing before_nav_pwd: ${beforeNavPwd}`,
     );
-    await kv.set(getKey(pid), {
-      currIndex: 0,
-      stack: [beforeNavPwd],
-    });
+    await kv.set(
+      getKey(pid),
+      {
+        currIndex: 0,
+        stack: [beforeNavPwd],
+        lastAccess: Date.now(),
+      } satisfies KvValue,
+    );
   } else {
     log("stack is already populated");
   }
@@ -100,10 +113,14 @@ export async function init(
         initializedStack[currIndex]
       }) is not beforeNavPwd (${beforeNavPwd}), resetting the stack`,
     );
-    await kv.set(getKey(pid), {
-      currIndex: 0,
-      stack: [beforeNavPwd],
-    });
+    await kv.set(
+      getKey(pid),
+      {
+        currIndex: 0,
+        stack: [beforeNavPwd],
+        lastAccess: Date.now(),
+      } satisfies KvValue,
+    );
   } else {
     log("stack[currIndex] is already the current dir");
   }
@@ -112,14 +129,49 @@ export async function init(
   return kv;
 }
 
-export async function deleteAll(kv: Deno.Kv) {
+export async function getAllKeys(kv: Deno.Kv) {
   const allKeys: Deno.KvKey[] = [];
   const entries = kv.list({ prefix: [] });
   for await (const entry of entries) {
     allKeys.push(entry.key);
   }
+  return allKeys;
+}
+
+export async function deleteAll(kv: Deno.Kv) {
+  const allKeys = await getAllKeys(kv);
 
   for (const key of allKeys) {
     await kv.delete(key);
   }
+}
+
+const isOlderThanTwoDays = (
+  lastAccess: number,
+) => {
+  const now = Date.now();
+  const second = 1_000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+  const twoDay = 2 * day;
+
+  return (now - lastAccess) > twoDay;
+};
+
+export async function deleteOld({ kv, log }: {
+  kv: Deno.Kv;
+  log: Log;
+}) {
+  const allKeys = await getAllKeys(kv);
+  let deleted = false;
+  for (const key of allKeys) {
+    const { lastAccess } = (await kv.get(key)).value as KvValue;
+    if (isOlderThanTwoDays(lastAccess)) {
+      deleted = true;
+      log(`DELETING: ${JSON.stringify(key, null, 2)}`);
+      await kv.delete(key);
+    }
+  }
+  if (!deleted) log("No kv entries deleted");
 }

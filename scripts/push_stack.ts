@@ -1,4 +1,12 @@
-import { buildLog, getKey, init, logKv, readKv } from "./shared.ts";
+import {
+  buildLog,
+  deleteOld,
+  getKey,
+  init,
+  type KvValue,
+  logKv,
+  readKv,
+} from "./shared.ts";
 import { parseArgs } from "jsr:@std/cli/parse-args";
 
 const {
@@ -20,15 +28,25 @@ const scriptDir = script_dir as string;
 const pid = _pid as string;
 
 const log = buildLog({ debugFlag, scriptDir });
+const kv = await Deno.openKv();
 
-const kv = await init({ beforeNavPwd, debugFlag, pid, log });
+// running this on a script that's sent to the background
+log("BEGIN: running deleteOld fn...");
+await deleteOld({ kv, log });
+log("END: ran deleteOld fn\n");
+
+await init({ beforeNavPwd, debugFlag, pid, log, kv });
 const { currIndex, stack } = await readKv({ kv, pid });
 
 log("BEGIN: running push_stack script...");
 await logKv({ kv, debugFlag, pid, log });
-await kv.set(getKey(pid), {
-  currIndex: currIndex + 1,
-  stack: [...stack, afterNavPwd],
-});
+await kv.set(
+  getKey(pid),
+  {
+    currIndex: currIndex + 1,
+    stack: [...stack, afterNavPwd],
+    lastAccess: Date.now(),
+  } satisfies KvValue,
+);
 log("END: ran push_stack script\n");
 await logKv({ kv, debugFlag, pid, log });

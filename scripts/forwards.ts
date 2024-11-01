@@ -1,5 +1,12 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { buildLog, getKey, init, logKv, readKv } from "./shared.ts";
+import {
+  buildLog,
+  getKey,
+  init,
+  type KvValue,
+  logKv,
+  readKv,
+} from "./shared.ts";
 
 const { before_nav_pwd, debug: debugFlag, pid: _pid, script_dir } = parseArgs(
   Deno.args,
@@ -33,10 +40,14 @@ if (currIndex === stack.length - 1) {
 
 log("incrementing currIndex");
 const cdDir = stack[currIndex + 1];
-await kv.set(getKey(pid), {
-  currIndex: currIndex + 1,
-  stack,
-});
+await kv.set(
+  getKey(pid),
+  {
+    currIndex: currIndex + 1,
+    stack,
+    lastAccess: Date.now(),
+  } satisfies KvValue,
+);
 log("END: ran forwards script\n");
 
 await logKv({ debugFlag, kv, pid, log });

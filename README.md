@@ -1,6 +1,6 @@
 # cd_time_machine
 
-A bash script to move back and forth along the directories you've visited. easily navigate each step in your history ...
+A bash script to move back and forth along the directories you've visited. Easily navigate each step in your history ...
 like you have a time machine.
 
 ---
@@ -20,7 +20,6 @@ $ pwd # /one/two/three
 ## Requirements
 
 - [deno](https://docs.deno.com/runtime/#install-deno)
-- [z](https://github.com/agkozak/zsh-z) (in the future I may support using different navigation commands)
 
 ## FAQ
 
@@ -33,14 +32,21 @@ is necessary.
 
 ### Q: Is `cd_time_machine` fast?
 
-A: very! About `0.005s` for a directory change or backwards navigation, `0.03s` for a forwards navigation on my local
-machine. To make things fast, I keep calls to Deno _after_ any navigation, and send the job to the background to avoid
-blocking the main script. The exception is a forwards navigation, since that requires reading from the database before
-navigating.
+A: Very! On my local machine, it takes about `0.005s` for a directory change or backwards navigation, `0.03s` for a
+forwards navigation. To make things fast, I keep calls to Deno _after_ any navigation, and send the job to the
+background to avoid blocking the main script. The exception is a forwards navigation, since that requires reading from
+the database before navigating.
+
+### Q: Why not use `pushd`, `popd`, and `dirs -v`?
+
+A: This script is looking to do a bit more than push and pop from a history stack - I also want to navigate _along_ it.
+I'm sure this is possible with a pure bash implementation, but I'm more comfortable working in typescript.
 
 ### Q: Suggested aliases/functions?
 
 ```bash
+# the --debug flag is supported for all the following commands
+
 tm() {
     source path/to/cd_time_machine/main.sh --change_dir="$1"
 }
@@ -49,6 +55,9 @@ tmb() {
 }
 tmf() {
     source path/to/cd_time_machine/main.sh --forwards
+}
+tmc() {
+    source path/to/cd_time_machine/main.sh --clear
 }
 
 # or register the functions so they can be remapped to control keys

@@ -1,6 +1,5 @@
 # TODO
-# bootstrap script
-# differentiate between tab and control o
+# restrict cd to current dir
 
 total_start=`date +%s.%N`
 
@@ -72,7 +71,7 @@ then
   return
 fi
 
-if [[ "$debug_flag" == "--debug" ]]
+if [[ "$debug_flag" == 1 ]]
 then 
   # clean logs at the beginning of the script so can view the logs after running the script
   deno task --cwd="$script_dir" cleanup --script_dir="$script_dir"
@@ -95,14 +94,14 @@ then
     err "Can't move forwards!"
     return
   else
-    cd "$forwards_out"
+    builtin cd "$forwards_out"
   fi
 fi
 
 if [[ "$backwards_flag" == 1 ]]
 then
   before_nav_pwd=$(pwd)
-  if cd ".."
+  if builtin cd ".."
     after_nav_pwd=$(pwd)
 
     backwards_cmd="deno task --cwd="$script_dir" backwards"
@@ -121,7 +120,8 @@ fi
 if [[ "$change_dir_flag" == 1 ]]
 then
   before_nav_pwd=$(pwd)
-  if z "$change_dir"
+
+  if builtin cd "$change_dir"
   then 
     after_nav_pwd=$(pwd)
 

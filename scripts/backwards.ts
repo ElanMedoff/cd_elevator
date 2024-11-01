@@ -1,5 +1,12 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { buildLog, getKey, init, logKv, readKv } from "./shared.ts";
+import {
+  buildLog,
+  getKey,
+  init,
+  type KvValue,
+  logKv,
+  readKv,
+} from "./shared.ts";
 
 const {
   after_nav_pwd,
@@ -31,18 +38,26 @@ if (currIndex === 0) {
   log(
     "currIndex is 0, moving afterNavPwd to the front of the stack",
   );
-  await kv.set(getKey(pid), {
-    currIndex,
-    stack: [afterNavPwd, ...stack],
-  });
+  await kv.set(
+    getKey(pid),
+    {
+      currIndex,
+      stack: [afterNavPwd, ...stack],
+      lastAccess: Date.now(),
+    } satisfies KvValue,
+  );
 } else {
   log(
     "currIndex is not 0, moving the currIndex backwards",
   );
-  await kv.set(getKey(pid), {
-    currIndex: currIndex - 1,
-    stack,
-  });
+  await kv.set(
+    getKey(pid),
+    {
+      currIndex: currIndex - 1,
+      stack,
+      lastAccess: Date.now(),
+    } satisfies KvValue,
+  );
 }
 log("BEGIN: ran backwards script\n");
 await logKv({ debugFlag, kv, pid, log });
