@@ -89,7 +89,7 @@ tmf() {
   then
     echo
     ls
-    echo -en "${red}Can't move forwards${no_color}"
+    echo -n "Can't move forwards"
     zle accept-line
   fi
 }
