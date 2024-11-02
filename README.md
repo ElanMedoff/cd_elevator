@@ -21,7 +21,7 @@ $ source path/to/cd_time_machine/main.sh --forwards
 $ pwd # /one/two/three
 
 $ source path/to/cd_time_machine/main.sh --print
-["__cd_time_machine_key","143182"]: {
+["__cd_time_machine_key","[pid]"]: {
   "currIndex": 2,
   "stack": [
     "/one",
