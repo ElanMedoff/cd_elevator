@@ -59,6 +59,9 @@ tmf() {
 tmc() {
     source path/to/cd_time_machine/main.sh --clear
 }
+tmp() {
+    source path/to/cd_time_machine/main.sh --print
+}
 
 # or a bit more advanced
 
