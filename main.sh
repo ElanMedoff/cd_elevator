@@ -3,6 +3,7 @@ total_start=`date +%s.%N`
 # eg: get_runtime start end label
 # $1: start
 # $2: end
+# $3: label
 get_runtime() {
   echo "$3 runtime: $( echo "$2 - $1" | bc -l )"
 }
@@ -91,7 +92,6 @@ then
 
   if [[ "$forwards_out" == "__err" ]]
   then
-    err "Can't move forwards!"
     return 2
   else
     builtin cd "$forwards_out"
@@ -102,6 +102,7 @@ if [[ "$backwards_flag" == 1 ]]
 then
   before_nav_pwd=$(pwd)
   if builtin cd ".."
+  then
     after_nav_pwd=$(pwd)
 
     backwards_cmd="deno task --cwd="$script_dir" backwards"
@@ -113,7 +114,8 @@ then
     [[ "$debug_flag" == 1 ]] && backwards_cmd+=" --debug"
     [[ "$debug_flag" == 0 ]] && backwards_cmd="($backwards_cmd > /dev/null 2>&1 &)"
     eval "$backwards_cmd"
-  then
+  else 
+    return 1
   fi
 fi
 
@@ -124,7 +126,6 @@ then
   change_dir_parent=$(dirname $(realpath "$change_dir"))
   if [[ "$change_dir_parent" != "$before_nav_pwd" ]]
   then
-    err "Only navigations to a direct child are supported"
     return 3
   fi
 
@@ -141,6 +142,8 @@ then
     [[ "$debug_flag" == 1 ]] && change_dir_cmd+=" --debug"
     [[ "$debug_flag" == 0 ]] && change_dir_cmd="($change_dir_cmd > /dev/null 2>&1 &)"
     eval "$change_dir_cmd"
+  else 
+    return 1
   fi
 fi
 
