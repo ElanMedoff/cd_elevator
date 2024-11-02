@@ -6,7 +6,7 @@ export interface KvValue {
 
 export type Log = (str: string) => void;
 
-export const getKey = (pid: string) => ["__cd_stack_key", pid];
+export const getKey = (pid: string) => ["__cd_time_machine_key", pid];
 
 export function buildLog(
   { debugFlag, scriptDir }: { debugFlag: boolean; scriptDir: string },
@@ -51,15 +51,11 @@ export async function readKv({ kv, pid }: { kv: Deno.Kv; pid: string }) {
   return { currIndex, stack: [...stack], lastAccess };
 }
 
-export async function init(
-  { beforeNavPwd, debugFlag, pid, log, kv }: {
-    beforeNavPwd: string;
-    debugFlag: boolean;
-    pid: string;
-    log: Log;
-    kv?: Deno.Kv;
-  },
-) {
+export async function initKv({ pid, log, kv }: {
+  pid: string;
+  log: Log;
+  kv?: Deno.Kv;
+}) {
   if (!kv) {
     kv = await Deno.openKv();
   }
@@ -80,7 +76,22 @@ export async function init(
     log("kv store is already populated");
   }
   log("DONE: kv store initialized\n");
+}
 
+export async function init(
+  { beforeNavPwd, debugFlag, pid, log, kv }: {
+    beforeNavPwd: string;
+    debugFlag: boolean;
+    pid: string;
+    log: Log;
+    kv?: Deno.Kv;
+  },
+) {
+  if (!kv) {
+    kv = await Deno.openKv();
+  }
+
+  await initKv({ log, pid, kv });
   const { stack: uninitializedStack } = await readKv({ kv, pid });
 
   log("BEGIN: initializing the stack...");

@@ -1,5 +1,5 @@
 import { parseArgs } from "@std/cli/parse-args";
-import { buildLog, getKey, readKv } from "./shared.ts";
+import { buildLog, getKey, initKv, readKv } from "./shared.ts";
 import { logKv } from "./shared.ts";
 
 const { debug: debugFlag, script_dir, pid: _pid } = parseArgs(Deno.args, {
@@ -12,6 +12,7 @@ const log = buildLog({ debugFlag, scriptDir });
 
 log("BEGIN: running print_kv script...");
 const kv = await Deno.openKv();
+await initKv({ log, pid, kv });
 await logKv({ debugFlag, kv, log, pid });
 const value = await readKv({ kv, pid });
 console.log(

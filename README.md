@@ -21,7 +21,7 @@ $ source path/to/cd_time_machine/main.sh --forwards
 $ pwd # /one/two/three
 
 $ source path/to/cd_time_machine/main.sh --print
-["__cd_stack_key","143182"]: {
+["__cd_time_machine_key","143182"]: {
   "currIndex": 2,
   "stack": [
     "/one",
@@ -35,33 +35,12 @@ $ source path/to/cd_time_machine/main.sh --print
 ## Status codes:
 
 - `1`: Generic error
-- `2`: Invalid forwards action. The current dir is already the top of the stack, can't move any more forwards.
-- `3`: Invalid navigation. Attempted to navigate to a directory that isn't the child of the current dir.
+- `2`: Invalid forwards action - the current dir is already the top of the stack, can't move any more forwards
+- `3`: Invalid change_dir action - attempted to navigate to a directory that isn't the child of the current dir
 
 ## Requirements
 
 - [deno](https://docs.deno.com/runtime/#install-deno)
-
-## FAQ
-
-### Q: Why do you need to execute the script with `source`, why not with `./`?
-
-A: When executing a script with `./`, a new sub-shell is spawned to run the script. Changing your directory in the
-subshell only applies _within_ the subshell, and it won't affect the shell where you initially executed
-`cd_time_machine`. In order to run a script within your current shell - and have directory changes take affect in your
-current shell - the `source` keyword is necessary.
-
-### Q: Is `cd_time_machine` fast?
-
-A: About `0.005s` for a directory change or backwards navigation, `0.03s` for a forwards navigation (on my local
-machine, not tested very rigorously). To keep things fast, I make Deno calls _after_ any navigation and send the job to
-the background to avoid blocking the main script. The exception is a forwards navigation, since that requires reading
-from the database before navigating.
-
-### Q: Why not use `pushd`, `popd`, and `dirs -v`?
-
-A: This script is looking to do a bit more than push and pop from a history stack - I also want to navigate _along_ it.
-I'm sure this is possible with a pure bash implementation, but I'm more comfortable working in typescript.
 
 ### Suggested aliases/functions
 
@@ -118,3 +97,24 @@ zle -N tmf
 bindkey '^O' tmb
 bindkey '^I' tmf
 ```
+
+## FAQ
+
+### Q: Why do you need to execute the script with `source`, why not with `./`?
+
+A: When executing a script with `./`, a new sub-shell is spawned to run the script. Changing your directory in the
+subshell only applies _within_ the subshell, and it won't affect the shell where you initially executed
+`cd_time_machine`. In order to run a script within your current shell - and have directory changes take affect in your
+current shell - the `source` keyword is necessary.
+
+### Q: Is `cd_time_machine` fast?
+
+A: About `0.005s` for a directory change or backwards navigation, `0.03s` for a forwards navigation (on my local
+machine, not tested very rigorously). To keep things fast, I make Deno calls _after_ any navigation and send the job to
+the background to avoid blocking the main script. The exception is a forwards navigation, since that requires reading
+from the database before navigating.
+
+### Q: Why not use `pushd`, `popd`, and `dirs -v`?
+
+A: This script is looking to do a bit more than push and pop from a history stack - I also want to navigate _along_ it.
+I'm sure this is possible with a pure bash implementation, but I'm more comfortable working in typescript.
