@@ -12,7 +12,7 @@ no_color='\033[0m'
 # eg: err "bad argument!"
 # $1: message
 err() {
-  echo -en "${red}$1${no_color}"
+  echo -e "${red}$1${no_color}"
 }
 
 script_dir="$(dirname "$0")"
@@ -21,6 +21,7 @@ forwards_flag=0
 backwards_flag=0
 clear_flag=0
 debug_flag=0
+print_flag=0
 
 for arg in "$@"
 do
@@ -41,15 +42,17 @@ do
       debug_flag=1
       shift
       ;;
+    --print)
+      print_flag=1
+      shift
+      ;;
     --change_dir=*)
       change_dir=$(echo "$arg" | cut -d'=' -f2)
       shift
       ;;
-    --*)
-      err "Unknown option: $arg"
-      return
-      ;;
     *)
+      err "Unknown option: $arg"
+      return 1
       ;;
   esac
 done
@@ -61,11 +64,11 @@ else
   change_dir_flag=1
 fi
 
-sum=$((forwards_flag + backwards_flag + clear_flag + change_dir_flag))
+sum=$((forwards_flag + backwards_flag + clear_flag + print_flag + change_dir_flag))
 if [[ "$sum" != 1 ]] 
 then 
-  err "only one of --forwards, --backwards, --clear, --change_dir is supported!"
-  return
+  err "only one of --forwards, --backwards, --clear, --print, --change_dir is supported!"
+  return 1
 fi
 
 if [[ "$debug_flag" == 1 ]]
@@ -89,7 +92,7 @@ then
   if [[ "$forwards_out" == "__err" ]]
   then
     err "Can't move forwards!"
-    return
+    return 2
   else
     builtin cd "$forwards_out"
   fi
@@ -122,7 +125,7 @@ then
   if [[ "$change_dir_parent" != "$before_nav_pwd" ]]
   then
     err "Only navigations to a direct child are supported"
-    return
+    return 3
   fi
 
   if builtin cd "$change_dir"
@@ -149,6 +152,16 @@ then
   [[ "$debug_flag" == 1 ]] && clear_cmd+=" --debug"
   [[ "$debug_flag" == 0 ]] && clear_cmd="($clear_cmd > /dev/null 2>&1 &)"
   eval "$clear_cmd"
+fi
+
+if [[ "$print_flag" == 1 ]]
+then
+  print_cmd="deno run --allow-write --allow-env --allow-read --allow-sys --allow-run --unstable-kv "$script_dir/scripts/print_kv.ts""
+  print_cmd+=" --pid="$$""
+  print_cmd+=" --script_dir="$script_dir""
+
+  [[ "$debug_flag" == 1 ]] && print_cmd+=" --debug"
+  eval "$print_cmd"
 fi
 
 total_end=`date +%s.%N`
